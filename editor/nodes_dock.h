@@ -78,9 +78,12 @@ class NodesDock : public VBoxContainer {
     Vector<Button*> category_btns_2d;
     Vector<Button*> category_btns_3d;
 
+    StringName last_category_2d;
+    StringName last_category_3d;
+
     ScrollContainer *nodes_scroll = nullptr;
     VBoxContainer *nodes_vbox = nullptr;
-    LineEdit *search_box = nullptr;
+    LineEdit *search_bar = nullptr;
     HBoxContainer *categories_hbox = nullptr;
     Label *category_label = nullptr;
 
@@ -103,6 +106,7 @@ protected:
 
 public:
     bool select_category(StringName category);
+    void notify_main_screen_changed(const String &screen_name);
 
 	NodesDock();
 	~NodesDock();

@@ -202,6 +202,7 @@ void EditorMainScreen::select(int p_index) {
 	}
 
 	EditorNode::get_singleton()->update_distraction_free_mode();
+	EditorNode::get_singleton()->notify_main_screen_changed(selected_plugin->get_plugin_name());
 }
 
 int EditorMainScreen::get_selected_index() const {

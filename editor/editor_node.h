@@ -877,6 +877,7 @@ public:
 	void set_convert_old_scene(bool p_old) { convert_old = p_old; }
 
 	void notify_all_debug_sessions_exited();
+	void notify_main_screen_changed(const String &screen_name);
 
 	OS::ProcessID has_child_process(OS::ProcessID p_pid) const;
 	void stop_child_process(OS::ProcessID p_pid);

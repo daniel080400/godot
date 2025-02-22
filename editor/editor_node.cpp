@@ -4844,6 +4844,10 @@ void EditorNode::notify_all_debug_sessions_exited() {
 	project_run_bar->stop_playing();
 }
 
+void EditorNode::notify_main_screen_changed(const String &screen_name) {
+	NodesDock::get_singleton()->notify_main_screen_changed(screen_name);
+}
+
 void EditorNode::add_io_error(const String &p_error) {
 	DEV_ASSERT(Thread::get_caller_id() == Thread::get_main_id());
 	singleton->load_errors->add_image(singleton->theme->get_icon(SNAME("Error"), EditorStringName(EditorIcons)));

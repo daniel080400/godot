@@ -48,16 +48,17 @@ bool NodesDock::select_category(StringName category) {
         for (int i = 0; i < category_btns_3d.size(); i++){
             if (categories_3d[i] == category) {
                 found = i;
-                category_btns_3d[i]->set_pressed(true);
-            } else {
-                category_btns_3d[i]->set_pressed(false);
             }
+            category_btns_3d[i]->set_pressed(false);
         }
 
         if (found >= 0) {
-            _set_mode(Mode::MODE_3D);
+            category_btns_3d[found]->set_pressed(true);
+            last_category_3d = category;
             return true;
         }
+        WARN_PRINT(vformat("Category: %s is not found in 3D mode", category));
+        return false;
     }
 
     // Is currently in 2D view
@@ -66,50 +67,82 @@ bool NodesDock::select_category(StringName category) {
         for (int i = 0; i < category_btns_2d.size(); i++){
             if (categories_2d[i] == category) {
                 found = i;
-                category_btns_2d[i]->set_pressed(true);
-            } else {
-                category_btns_2d[i]->set_pressed(false);
             }
+            category_btns_2d[i]->set_pressed(false);
         }
 
         if (found >= 0) {
-            _set_mode(Mode::MODE_2D);
+            category_btns_2d[found]->set_pressed(true);
+            last_category_2d = category;
             return true;
         }
+        WARN_PRINT(vformat("Category: %s is not found in 2D mode", category));
+        return false;
     }
 
-    _set_mode(Mode::MODE_NONE);
     return false;
+}
+
+void NodesDock::notify_main_screen_changed(const String &screen_name) {
+    if (screen_name.to_lower() == "2d") {
+        _set_mode(Mode::MODE_2D);
+        return;
+    }
+
+    if (screen_name.to_lower() == "3d") {
+        _set_mode(Mode::MODE_3D);
+        return;
+    }
+
+    // Disable panel if is anything else
+    _set_mode(Mode::MODE_NONE);
+    return;
 }
 
 void NodesDock::_set_mode(Mode mode) {
     current_mode = mode;
 
-    if (mode == Mode::MODE_NONE) {
+    if (current_mode == Mode::MODE_NONE) {
         for (int i = 0; i < category_btns_2d.size(); i++) {
             category_btns_2d[i]->hide();
         }
         for (int i = 0; i < category_btns_3d.size(); i++) {
             category_btns_3d[i]->hide();
-        } 
+        }
+
+        search_bar->hide();
     }
 
-    if (mode == Mode::MODE_2D) {
+    if (current_mode == Mode::MODE_2D) {
         for (int i = 0; i < category_btns_2d.size(); i++) {
             category_btns_2d[i]->show();
         }
         for (int i = 0; i < category_btns_3d.size(); i++) {
             category_btns_3d[i]->hide();
         }
+
+        if (!last_category_2d.is_empty()){
+            select_category(last_category_2d);
+        } else {
+            select_category(CATEGORY_2D_BASIC);
+        }
+        search_bar->show();
     }
 
-    if (mode == Mode::MODE_3D) {
+    if (current_mode == Mode::MODE_3D) {
         for (int i = 0; i < category_btns_2d.size(); i++) {
             category_btns_2d[i]->hide();
         }
         for (int i = 0; i < category_btns_3d.size(); i++) {
             category_btns_3d[i]->show();
         }
+
+        if (!last_category_3d.is_empty()){
+            select_category(last_category_3d);
+        } else {
+            select_category(CATEGORY_3D_BASIC);
+        }
+        search_bar->show();
     }
 }
 
@@ -132,7 +165,7 @@ void NodesDock::_notification(int p_what) {
         } break;
 
 		case NOTIFICATION_THEME_CHANGED: {
-            search_box->set_right_icon(get_editor_theme_icon(SNAME("Search")));
+            search_bar->set_right_icon(get_editor_theme_icon(SNAME("Search")));
 
             // Set icons (2D)
             for (int i = 0; i < category_btns_2d.size(); i++){
@@ -213,7 +246,7 @@ NodesDock::NodesDock() {
     // Construct layout
     nodes_scroll = memnew(ScrollContainer);
     nodes_vbox = memnew(VBoxContainer);
-    search_box = memnew(LineEdit);
+    search_bar = memnew(LineEdit);
     categories_hbox = memnew(HBoxContainer);
     category_label = memnew(Label);
 
@@ -225,10 +258,10 @@ NodesDock::NodesDock() {
     nodes_vbox->set_h_size_flags(SIZE_EXPAND_FILL);
     nodes_vbox->set_v_size_flags(SIZE_EXPAND_FILL);
 
-    nodes_vbox->add_child(search_box);
-    search_box->set_h_size_flags(SIZE_EXPAND_FILL);
-    search_box->set_v_size_flags(SIZE_SHRINK_CENTER);
-    search_box->set_placeholder("Search");
+    nodes_vbox->add_child(search_bar);
+    search_bar->set_h_size_flags(SIZE_EXPAND_FILL);
+    search_bar->set_v_size_flags(SIZE_SHRINK_CENTER);
+    search_bar->set_placeholder("Search");
 
     nodes_vbox->add_child(categories_hbox);
     categories_hbox->set_h_size_flags(SIZE_EXPAND_FILL);
@@ -258,18 +291,6 @@ NodesDock::NodesDock() {
         category_btns_3d.append(btn);
         btn->hide();
     }
-
-    // Will not work since editor is not initialized now
-    if (!select_category(CATEGORY_3D_BASIC)) {
-        if (!select_category(CATEGORY_2D_BASIC)) {
-            select_category(CATEGORY_NONE);
-        }
-    }
-
-    // TEST - Force show 3d categories for now
-    _set_mode(Mode::MODE_3D);
-
-    // WIP find a way to get notify by editor table index changed (2D / 3D / Script / AssetLib)
 
     return;
 }
