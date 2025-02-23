@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  nodes_dock.h                                                           */
+/*  nodes_dock.h                                                          */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -33,11 +33,11 @@
 
 #include "groups_editor.h"
 #include "scene/gui/box_container.h"
-#include "scene/gui/scroll_container.h"
 #include "scene/gui/button.h"
 #include "scene/gui/label.h"
 #include "scene/gui/panel.h"
 #include "scene/gui/popup.h"
+#include "scene/gui/scroll_container.h"
 #include "scene/gui/texture_button.h"
 #include "scene/main/window.h"
 
@@ -47,49 +47,57 @@ class ConnectionsDock;
 class NodesDock : public VBoxContainer {
 	GDCLASS(NodesDock, VBoxContainer);
 
-    enum Mode {
-        MODE_NONE,
-        MODE_2D,
-        MODE_3D,
-    };
+	enum Mode {
+		MODE_NONE,
+		MODE_2D,
+		MODE_3D,
+	};
 
-    const StringName CATEGORY_NONE = SNAME("");
+	const int8_t PANEL_VERTICAL_SIZE = 48;
 
-    const StringName CATEGORY_2D_BASIC = SNAME("Basic");
-    const StringName CATEGORY_2D_LIGHTING = SNAME("Lighting");
-    const StringName CATEGORY_2D_VFX = SNAME("Visual Effects");
-    const StringName CATEGORY_2D_VOLUMES = SNAME("Volumes");
-    const StringName CATEGORY_2D_RECENT = SNAME("Recent");
+	const StringName CATEGORY_NONE = SNAME("");
 
-    const StringName CATEGORY_3D_BASIC = SNAME("Basic");
-    const StringName CATEGORY_3D_LIGHTING = SNAME("Lighting");
-    const StringName CATEGORY_3D_PRIMITIVES = SNAME("Primitives");
-    const StringName CATEGORY_3D_VFX = SNAME("Visual Effects");
-    const StringName CATEGORY_3D_VOLUMES = SNAME("Volumes");
-    const StringName CATEGORY_3D_CSG = SNAME("CSG");
-    const StringName CATEGORY_3D_RECENT = SNAME("Recent");
+	const StringName CATEGORY_2D_BASIC = SNAME("Basic");
+	const StringName CATEGORY_2D_LIGHTING = SNAME("Lighting");
+	const StringName CATEGORY_2D_VFX = SNAME("Visual Effects");
+	const StringName CATEGORY_2D_VOLUMES = SNAME("Volumes");
+	const StringName CATEGORY_2D_RECENT = SNAME("Recent");
 
-    Mode current_mode;
+	const StringName CATEGORY_3D_BASIC = SNAME("Basic");
+	const StringName CATEGORY_3D_LIGHTING = SNAME("Lighting");
+	const StringName CATEGORY_3D_PRIMITIVES = SNAME("Primitives");
+	const StringName CATEGORY_3D_VFX = SNAME("Visual Effects");
+	const StringName CATEGORY_3D_VOLUMES = SNAME("Volumes");
+	const StringName CATEGORY_3D_CSG = SNAME("CSG");
+	const StringName CATEGORY_3D_RECENT = SNAME("Recent");
 
-    Vector<StringName> categories_2d;
-    Vector<StringName> categories_3d;
-    HashMap<StringName, StringName> category_icons_2d;
-    HashMap<StringName, StringName> category_icons_3d;
-    Vector<Button*> category_btns_2d;
-    Vector<Button*> category_btns_3d;
+	Mode current_mode;
 
-    StringName last_category_2d;
-    StringName last_category_3d;
+	Vector<StringName> categories_2d;
+	Vector<StringName> categories_3d;
+	HashMap<StringName, StringName> category_icons_2d;
+	HashMap<StringName, StringName> category_icons_3d;
+	Vector<Button *> category_btns_2d;
+	Vector<Button *> category_btns_3d;
 
-    ScrollContainer *nodes_scroll = nullptr;
-    VBoxContainer *nodes_vbox = nullptr;
-    LineEdit *search_bar = nullptr;
-    HBoxContainer *categories_hbox = nullptr;
-    Label *category_label = nullptr;
+	StringName last_category_2d;
+	StringName last_category_3d;
 
-    Button* _create_category_button(StringName category);
+	HashMap<StringName, Vector<Panel *>> panels;
 
-    void _set_mode(Mode mode);
+	ScrollContainer *nodes_scroll = nullptr;
+	VBoxContainer *nodes_vbox = nullptr;
+	LineEdit *search_bar = nullptr;
+	HBoxContainer *categories_hbox = nullptr;
+	Label *category_label = nullptr;
+
+	Button *_create_category_button(StringName category);
+	Panel *_create_node_panel(StringName node_name);
+
+	void _node_panel_mouse_entered(Panel *panel);
+	void _node_panel_mouse_exited(Panel *panel);
+
+	void _set_mode(Mode mode);
 
 	void _save_layout_to_config(Ref<ConfigFile> p_layout, const String &p_section) const;
 	void _load_layout_from_config(Ref<ConfigFile> p_layout, const String &p_section);
@@ -105,8 +113,8 @@ protected:
 	static void _bind_methods();
 
 public:
-    bool select_category(StringName category);
-    void notify_main_screen_changed(const String &screen_name);
+	bool select_category(StringName category);
+	void notify_main_screen_changed(const String &screen_name);
 
 	NodesDock();
 	~NodesDock();
