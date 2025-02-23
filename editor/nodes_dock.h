@@ -31,10 +31,15 @@
 #ifndef NODES_DOCK_H
 #define NODES_DOCK_H
 
-#include "groups_editor.h"
+// #include "core/variant/variant.h"
+// #include "core/variant/variant_callable.h"
+// #include "core/variant/callable.h"
+// #include "core/variant/callable_bind.h"
+// #include "groups_editor.h"
 #include "scene/gui/box_container.h"
 #include "scene/gui/button.h"
 #include "scene/gui/label.h"
+#include "scene/gui/line_edit.h"
 #include "scene/gui/panel.h"
 #include "scene/gui/popup.h"
 #include "scene/gui/scroll_container.h"
@@ -92,10 +97,14 @@ class NodesDock : public VBoxContainer {
 	Label *category_label = nullptr;
 
 	Button *_create_category_button(StringName category);
-	Panel *_create_node_panel(StringName node_name);
+	Panel *_create_template_panel(StringName node_name);
 
-	void _node_panel_mouse_entered(Panel *panel);
-	void _node_panel_mouse_exited(Panel *panel);
+	void _mouse_entered();
+	void _mouse_exited();
+
+	void _template_panel_mouse_entered(Panel *panel);
+	void _template_panel_mouse_exited(Panel *panel);
+	void _template_panel_dragged(Vector2 position, Panel *panel);
 
 	void _set_mode(Mode mode);
 
@@ -107,6 +116,9 @@ private:
 
 public:
 	static NodesDock *get_singleton() { return singleton; }
+	// virtual Variant get_drag_data(const Point2 &p_point) override;
+	virtual bool can_drop_data(const Point2 &p_point, const Variant &p_data) const override;
+	virtual void drop_data(const Point2 &p_point, const Variant &p_data) override;
 
 protected:
 	void _notification(int p_what);

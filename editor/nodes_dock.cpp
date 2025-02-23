@@ -161,6 +161,14 @@ void NodesDock::_load_layout_from_config(Ref<ConfigFile> p_layout, const String 
 
 void NodesDock::_notification(int p_what) {
 	switch (p_what) {
+		case NOTIFICATION_MOUSE_ENTER: {
+			_mouse_entered();
+		} break;
+
+		case NOTIFICATION_MOUSE_EXIT: {
+			_mouse_exited();
+		} break;
+
 		case NOTIFICATION_POSTINITIALIZE: {
 		} break;
 
@@ -201,6 +209,27 @@ void NodesDock::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_load_layout_from_config"), &NodesDock::_load_layout_from_config);
 }
 
+bool NodesDock::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
+	bool drop_override = Control::can_drop_data(p_point, p_data); // In case user wants to drop custom data.
+	if (drop_override) {
+		return drop_override;
+	}
+	return true;
+}
+
+void NodesDock::drop_data(const Point2 &p_point, const Variant &p_data) {
+	Control::drop_data(p_point, p_data);
+	// TEST
+	print_line("Dropped something at nodes panel");
+	if (p_data.get_type() == Variant::Type::OBJECT) {
+		Panel *panel = Object::cast_to<Panel>(p_data.get_validated_object());
+		if (panel != nullptr && panel->has_meta("node_name")) {
+			print_line("Dropped template %s at nodes panel", panel->get_meta("node_name"));
+		}
+	}
+	// Deconstruct dragged template here (Not dropped in scene)
+}
+
 Button *NodesDock::_create_category_button(StringName category) {
 	Button *btn = memnew(Button);
 	btn->set_theme_type_variation(SceneStringName(FlatButton));
@@ -218,7 +247,7 @@ Button *NodesDock::_create_category_button(StringName category) {
 	return btn;
 }
 
-Panel *NodesDock::_create_node_panel(StringName node_name) {
+Panel *NodesDock::_create_template_panel(StringName node_name) {
 	if (node_name.is_empty()) {
 		return nullptr;
 	}
@@ -231,6 +260,7 @@ Panel *NodesDock::_create_node_panel(StringName node_name) {
 	panel->set_h_size_flags(SizeFlags::SIZE_EXPAND_FILL);
 	panel->set_v_size_flags(SizeFlags::SIZE_SHRINK_CENTER);
 	panel->set_custom_minimum_size(Size2(0, PANEL_VERTICAL_SIZE));
+	panel->set_mouse_filter(Control::MouseFilter::MOUSE_FILTER_PASS); // For parent dock mouse entered, mouse exited to work
 
 	panel->add_child(hbox);
 	hbox->set_anchors_preset(Control::LayoutPreset::PRESET_FULL_RECT);
@@ -253,19 +283,35 @@ Panel *NodesDock::_create_node_panel(StringName node_name) {
 	panel->set_meta("node_name", node_name);
 
 	// Bind events
-	panel->connect(SceneStringName(mouse_entered), callable_mp(this, &NodesDock::_node_panel_mouse_entered).bind(panel));
-	panel->connect(SceneStringName(mouse_exited), callable_mp(this, &NodesDock::_node_panel_mouse_exited).bind(panel));
+	panel->connect(SceneStringName(mouse_entered), callable_mp(this, &NodesDock::_template_panel_mouse_entered).bind(panel));
+	panel->connect(SceneStringName(mouse_exited), callable_mp(this, &NodesDock::_template_panel_mouse_exited).bind(panel));
 
 	return panel;
 }
 
-void NodesDock::_node_panel_mouse_entered(Panel *panel) {
-	print_line(vformat("hoverd panel: %s", panel->get_meta("node_name")));
+void NodesDock::_mouse_entered() {
+	print_line("Mouse entered NodesDock");
+	// Construct template instance here
+}
+
+void NodesDock::_mouse_exited() {
+	print_line("Mouse exited NodesDock");
+	// Deconstuct template instance here
+}
+
+void NodesDock::_template_panel_mouse_entered(Panel *panel) {
+	print_line(vformat("hovered template: %s", panel->get_meta("node_name")));
 	panel->set_self_modulate(Color(0.9, 0.9, 0.9));
 }
 
-void NodesDock::_node_panel_mouse_exited(Panel *panel) {
+void NodesDock::_template_panel_mouse_exited(Panel *panel) {
 	panel->set_self_modulate(Color(1.0, 1.0, 1.0));
+}
+
+void NodesDock::_template_panel_dragged(Vector2 position, Panel *panel) {
+	// TEST
+	print_line(vformat("Dragged template: %s", panel->get_meta("node_name")));
+	// Set dragged template here
 }
 
 NodesDock::NodesDock() {
@@ -352,12 +398,16 @@ NodesDock::NodesDock() {
 	}
 
 	// TEST - Basic 3D list
-	Panel *node3d_panel = _create_node_panel("Node3D");
-	Panel *mesh3d_panel = _create_node_panel("MeshInstance3D");
+	Panel *node3d_panel = _create_template_panel("Node3D");
+	Panel *mesh3d_panel = _create_template_panel("MeshInstance3D");
 	panels[CATEGORY_3D_BASIC].append(node3d_panel);
 	panels[CATEGORY_3D_BASIC].append(mesh3d_panel);
 	nodes_vbox->add_child(node3d_panel);
 	nodes_vbox->add_child(mesh3d_panel);
+
+	// TEST - Drag templates
+	node3d_panel->set_drag_forwarding(callable_mp(this, &NodesDock::_template_panel_dragged).bind(node3d_panel), Callable(), Callable());
+	mesh3d_panel->set_drag_forwarding(callable_mp(this, &NodesDock::_template_panel_dragged).bind(mesh3d_panel), Callable(), Callable());
 	return;
 }
 
