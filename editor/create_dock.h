@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  nodes_dock.h                                                          */
+/*  create_dock.h                                                         */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,8 +28,8 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#ifndef NODES_DOCK_H
-#define NODES_DOCK_H
+#ifndef CREATE_DOCK_H
+#define CREATE_DOCK_H
 
 // #include "core/variant/variant.h"
 // #include "core/variant/variant_callable.h"
@@ -49,8 +49,8 @@
 class ConfigFile;
 class ConnectionsDock;
 
-class NodesDock : public VBoxContainer {
-	GDCLASS(NodesDock, VBoxContainer);
+class CreateDock : public VBoxContainer {
+	GDCLASS(CreateDock, VBoxContainer);
 
 	enum Mode {
 		MODE_NONE,
@@ -90,8 +90,8 @@ class NodesDock : public VBoxContainer {
 
 	HashMap<StringName, Vector<Panel *>> panels;
 
-	ScrollContainer *nodes_scroll = nullptr;
-	VBoxContainer *nodes_vbox = nullptr;
+	ScrollContainer *main_scroll = nullptr;
+	VBoxContainer *main_vbox = nullptr;
 	LineEdit *search_bar = nullptr;
 	HBoxContainer *categories_hbox = nullptr;
 	Label *category_label = nullptr;
@@ -112,10 +112,10 @@ class NodesDock : public VBoxContainer {
 	void _load_layout_from_config(Ref<ConfigFile> p_layout, const String &p_section);
 
 private:
-	inline static NodesDock *singleton = nullptr;
+	inline static CreateDock *singleton = nullptr;
 
 public:
-	static NodesDock *get_singleton() { return singleton; }
+	static CreateDock *get_singleton() { return singleton; }
 	// virtual Variant get_drag_data(const Point2 &p_point) override;
 	virtual bool can_drop_data(const Point2 &p_point, const Variant &p_data) const override;
 	virtual void drop_data(const Point2 &p_point, const Variant &p_data) override;
@@ -128,8 +128,8 @@ public:
 	bool select_category(StringName category);
 	void notify_main_screen_changed(const String &screen_name);
 
-	NodesDock();
-	~NodesDock();
+	CreateDock();
+	~CreateDock();
 };
 
-#endif // NODES_DOCK_H
+#endif // CREATE_DOCK_H

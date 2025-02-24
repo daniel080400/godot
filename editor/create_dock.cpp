@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  nodes_dock.cpp                                                        */
+/*  create_dock.cpp                                                       */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                 */
 /**************************************************************************/
 
-#include "nodes_dock.h"
+#include "create_dock.h"
 
 #include "core/io/config_file.h"
 #include "editor/connections_dialog.h"
@@ -39,7 +39,7 @@
 #include "scene/resources/image_texture.h"
 
 // Returns if success
-bool NodesDock::select_category(StringName category) {
+bool CreateDock::select_category(StringName category) {
 	category_label->set_text(category);
 
 	// Is currently in 3D view
@@ -83,7 +83,7 @@ bool NodesDock::select_category(StringName category) {
 	return false;
 }
 
-void NodesDock::notify_main_screen_changed(const String &screen_name) {
+void CreateDock::notify_main_screen_changed(const String &screen_name) {
 	if (screen_name.to_lower() == "2d") {
 		_set_mode(Mode::MODE_2D);
 		return;
@@ -99,7 +99,7 @@ void NodesDock::notify_main_screen_changed(const String &screen_name) {
 	return;
 }
 
-void NodesDock::_set_mode(Mode mode) {
+void CreateDock::_set_mode(Mode mode) {
 	current_mode = mode;
 
 	if (current_mode == Mode::MODE_NONE) {
@@ -146,11 +146,11 @@ void NodesDock::_set_mode(Mode mode) {
 	}
 }
 
-void NodesDock::_save_layout_to_config(Ref<ConfigFile> p_layout, const String &p_section) const {
+void CreateDock::_save_layout_to_config(Ref<ConfigFile> p_layout, const String &p_section) const {
 	// p_layout->set_value(p_section, "dock_nodes_current_tab", int(groups_button->is_pressed()));
 }
 
-void NodesDock::_load_layout_from_config(Ref<ConfigFile> p_layout, const String &p_section) {
+void CreateDock::_load_layout_from_config(Ref<ConfigFile> p_layout, const String &p_section) {
 	// const int current_tab = p_layout->get_value(p_section, "dock_nodes_current_tab", 0);
 	// if (current_tab == 0) {
 	// 	show_connections();
@@ -159,7 +159,7 @@ void NodesDock::_load_layout_from_config(Ref<ConfigFile> p_layout, const String 
 	// }
 }
 
-void NodesDock::_notification(int p_what) {
+void CreateDock::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_MOUSE_ENTER: {
 			_mouse_entered();
@@ -204,12 +204,12 @@ void NodesDock::_notification(int p_what) {
 	}
 }
 
-void NodesDock::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("_save_layout_to_config"), &NodesDock::_save_layout_to_config);
-	ClassDB::bind_method(D_METHOD("_load_layout_from_config"), &NodesDock::_load_layout_from_config);
+void CreateDock::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("_save_layout_to_config"), &CreateDock::_save_layout_to_config);
+	ClassDB::bind_method(D_METHOD("_load_layout_from_config"), &CreateDock::_load_layout_from_config);
 }
 
-bool NodesDock::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
+bool CreateDock::can_drop_data(const Point2 &p_point, const Variant &p_data) const {
 	bool drop_override = Control::can_drop_data(p_point, p_data); // In case user wants to drop custom data.
 	if (drop_override) {
 		return drop_override;
@@ -217,20 +217,20 @@ bool NodesDock::can_drop_data(const Point2 &p_point, const Variant &p_data) cons
 	return true;
 }
 
-void NodesDock::drop_data(const Point2 &p_point, const Variant &p_data) {
+void CreateDock::drop_data(const Point2 &p_point, const Variant &p_data) {
 	Control::drop_data(p_point, p_data);
 	// TEST
-	print_line("Dropped something at nodes panel");
+	print_line("Dropped something at create panel");
 	if (p_data.get_type() == Variant::Type::OBJECT) {
 		Panel *panel = Object::cast_to<Panel>(p_data.get_validated_object());
 		if (panel != nullptr && panel->has_meta("node_name")) {
-			print_line("Dropped template %s at nodes panel", panel->get_meta("node_name"));
+			print_line("Dropped template %s at create panel", panel->get_meta("node_name"));
 		}
 	}
 	// Deconstruct dragged template here (Not dropped in scene)
 }
 
-Button *NodesDock::_create_category_button(StringName category) {
+Button *CreateDock::_create_category_button(StringName category) {
 	Button *btn = memnew(Button);
 	btn->set_theme_type_variation(SceneStringName(FlatButton));
 	btn->set_toggle_mode(true);
@@ -247,7 +247,7 @@ Button *NodesDock::_create_category_button(StringName category) {
 	return btn;
 }
 
-Panel *NodesDock::_create_template_panel(StringName node_name) {
+Panel *CreateDock::_create_template_panel(StringName node_name) {
 	if (node_name.is_empty()) {
 		return nullptr;
 	}
@@ -283,38 +283,38 @@ Panel *NodesDock::_create_template_panel(StringName node_name) {
 	panel->set_meta("node_name", node_name);
 
 	// Bind events
-	panel->connect(SceneStringName(mouse_entered), callable_mp(this, &NodesDock::_template_panel_mouse_entered).bind(panel));
-	panel->connect(SceneStringName(mouse_exited), callable_mp(this, &NodesDock::_template_panel_mouse_exited).bind(panel));
+	panel->connect(SceneStringName(mouse_entered), callable_mp(this, &CreateDock::_template_panel_mouse_entered).bind(panel));
+	panel->connect(SceneStringName(mouse_exited), callable_mp(this, &CreateDock::_template_panel_mouse_exited).bind(panel));
 
 	return panel;
 }
 
-void NodesDock::_mouse_entered() {
-	print_line("Mouse entered NodesDock");
+void CreateDock::_mouse_entered() {
+	print_line("Mouse entered CreateDock");
 	// Construct template instance here
 }
 
-void NodesDock::_mouse_exited() {
-	print_line("Mouse exited NodesDock");
+void CreateDock::_mouse_exited() {
+	print_line("Mouse exited CreateDock");
 	// Deconstuct template instance here
 }
 
-void NodesDock::_template_panel_mouse_entered(Panel *panel) {
+void CreateDock::_template_panel_mouse_entered(Panel *panel) {
 	print_line(vformat("hovered template: %s", panel->get_meta("node_name")));
 	panel->set_self_modulate(Color(0.9, 0.9, 0.9));
 }
 
-void NodesDock::_template_panel_mouse_exited(Panel *panel) {
+void CreateDock::_template_panel_mouse_exited(Panel *panel) {
 	panel->set_self_modulate(Color(1.0, 1.0, 1.0));
 }
 
-void NodesDock::_template_panel_dragged(Vector2 position, Panel *panel) {
+void CreateDock::_template_panel_dragged(Vector2 position, Panel *panel) {
 	// TEST
 	print_line(vformat("Dragged template: %s", panel->get_meta("node_name")));
 	// Set dragged template here
 }
 
-NodesDock::NodesDock() {
+CreateDock::CreateDock() {
 	singleton = this;
 	set_name("Nodes");
 
@@ -349,31 +349,31 @@ NodesDock::NodesDock() {
 	category_icons_3d[CATEGORY_3D_RECENT] = SNAME("Time");
 
 	// Construct layout
-	nodes_scroll = memnew(ScrollContainer);
-	nodes_vbox = memnew(VBoxContainer);
+	main_scroll = memnew(ScrollContainer);
+	main_vbox = memnew(VBoxContainer);
 	search_bar = memnew(LineEdit);
 	categories_hbox = memnew(HBoxContainer);
 	category_label = memnew(Label);
 
-	add_child(nodes_scroll);
-	nodes_scroll->set_h_size_flags(SIZE_EXPAND_FILL);
-	nodes_scroll->set_v_size_flags(SIZE_EXPAND_FILL);
+	add_child(main_scroll);
+	main_scroll->set_h_size_flags(SIZE_EXPAND_FILL);
+	main_scroll->set_v_size_flags(SIZE_EXPAND_FILL);
 
-	nodes_scroll->add_child(nodes_vbox);
-	nodes_vbox->set_h_size_flags(SIZE_EXPAND_FILL);
-	nodes_vbox->set_v_size_flags(SIZE_EXPAND_FILL);
+	main_scroll->add_child(main_vbox);
+	main_vbox->set_h_size_flags(SIZE_EXPAND_FILL);
+	main_vbox->set_v_size_flags(SIZE_EXPAND_FILL);
 
-	nodes_vbox->add_child(search_bar);
+	main_vbox->add_child(search_bar);
 	search_bar->set_h_size_flags(SIZE_EXPAND_FILL);
 	search_bar->set_v_size_flags(SIZE_SHRINK_CENTER);
 	search_bar->set_placeholder("Search");
 
-	nodes_vbox->add_child(categories_hbox);
+	main_vbox->add_child(categories_hbox);
 	categories_hbox->set_h_size_flags(SIZE_EXPAND_FILL);
 	categories_hbox->set_v_size_flags(SIZE_SHRINK_CENTER);
 	categories_hbox->set_alignment(BoxContainer::AlignmentMode::ALIGNMENT_CENTER);
 
-	nodes_vbox->add_child(category_label);
+	main_vbox->add_child(category_label);
 	category_label->set_h_size_flags(SIZE_EXPAND_FILL);
 	category_label->set_v_size_flags(SIZE_SHRINK_CENTER);
 	category_label->set_vertical_alignment(VerticalAlignment::VERTICAL_ALIGNMENT_CENTER);
@@ -382,7 +382,7 @@ NodesDock::NodesDock() {
 	// Category buttons 2d
 	for (int64_t i = 0; i < categories_2d.size(); i++) {
 		Button *btn = _create_category_button(categories_2d[i]);
-		btn->connect(SceneStringName(pressed), callable_mp(this, &NodesDock::select_category).bind(categories_2d[i])); // Bind callback
+		btn->connect(SceneStringName(pressed), callable_mp(this, &CreateDock::select_category).bind(categories_2d[i])); // Bind callback
 		categories_hbox->add_child(btn);
 		category_btns_2d.append(btn);
 		btn->hide();
@@ -391,7 +391,7 @@ NodesDock::NodesDock() {
 	// Category buttons 3d
 	for (int64_t i = 0; i < categories_3d.size(); i++) {
 		Button *btn = _create_category_button(categories_3d[i]);
-		btn->connect(SceneStringName(pressed), callable_mp(this, &NodesDock::select_category).bind(categories_3d[i])); // Bind callback
+		btn->connect(SceneStringName(pressed), callable_mp(this, &CreateDock::select_category).bind(categories_3d[i])); // Bind callback
 		categories_hbox->add_child(btn);
 		category_btns_3d.append(btn);
 		btn->hide();
@@ -402,15 +402,15 @@ NodesDock::NodesDock() {
 	Panel *mesh3d_panel = _create_template_panel("MeshInstance3D");
 	panels[CATEGORY_3D_BASIC].append(node3d_panel);
 	panels[CATEGORY_3D_BASIC].append(mesh3d_panel);
-	nodes_vbox->add_child(node3d_panel);
-	nodes_vbox->add_child(mesh3d_panel);
+	main_vbox->add_child(node3d_panel);
+	main_vbox->add_child(mesh3d_panel);
 
 	// TEST - Drag templates
-	node3d_panel->set_drag_forwarding(callable_mp(this, &NodesDock::_template_panel_dragged).bind(node3d_panel), Callable(), Callable());
-	mesh3d_panel->set_drag_forwarding(callable_mp(this, &NodesDock::_template_panel_dragged).bind(mesh3d_panel), Callable(), Callable());
+	node3d_panel->set_drag_forwarding(callable_mp(this, &CreateDock::_template_panel_dragged).bind(node3d_panel), Callable(), Callable());
+	mesh3d_panel->set_drag_forwarding(callable_mp(this, &CreateDock::_template_panel_dragged).bind(mesh3d_panel), Callable(), Callable());
 	return;
 }
 
-NodesDock::~NodesDock() {
+CreateDock::~CreateDock() {
 	singleton = nullptr;
 }

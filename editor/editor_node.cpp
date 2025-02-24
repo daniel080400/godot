@@ -73,6 +73,7 @@
 #include "servers/rendering_server.h"
 
 #include "editor/audio_stream_preview.h"
+#include "editor/create_dock.h"
 #include "editor/debugger/editor_debugger_node.h"
 #include "editor/debugger/script_editor_debugger.h"
 #include "editor/dependency_editor.h"
@@ -135,7 +136,6 @@
 #include "editor/inspector_dock.h"
 #include "editor/multi_node_edit.h"
 #include "editor/node_dock.h"
-#include "editor/nodes_dock.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/asset_library_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
@@ -4845,7 +4845,7 @@ void EditorNode::notify_all_debug_sessions_exited() {
 }
 
 void EditorNode::notify_main_screen_changed(const String &screen_name) {
-	NodesDock::get_singleton()->notify_main_screen_changed(screen_name);
+	CreateDock::get_singleton()->notify_main_screen_changed(screen_name);
 }
 
 void EditorNode::add_io_error(const String &p_error) {
@@ -7906,7 +7906,7 @@ EditorNode::EditorNode() {
 	memnew(InspectorDock(editor_data));
 	memnew(ImportDock);
 	memnew(NodeDock);
-	memnew(NodesDock);
+	memnew(CreateDock);
 
 	FileSystemDock *filesystem_dock = FileSystemDock::get_singleton();
 	filesystem_dock->connect("inherit", callable_mp(this, &EditorNode::_inherit_request));
@@ -7919,8 +7919,11 @@ EditorNode::EditorNode() {
 	// Scene: Top left.
 	editor_dock_manager->add_dock(SceneTreeDock::get_singleton(), TTRC("Scene"), EditorDockManager::DOCK_SLOT_LEFT_UR, ED_SHORTCUT_AND_COMMAND("docks/open_scene", TTRC("Open Scene Dock")), "PackedScene");
 
-	// Import: Top left, behind Scene.
-	editor_dock_manager->add_dock(ImportDock::get_singleton(), TTRC("Import"), EditorDockManager::DOCK_SLOT_LEFT_UR, ED_SHORTCUT_AND_COMMAND("docks/open_import", TTRC("Open Import Dock")), "FileAccess");
+	// Nodes: Top left, behind Scene.
+	editor_dock_manager->add_dock(CreateDock::get_singleton(), TTR("Create"), EditorDockManager::DOCK_SLOT_LEFT_UR, nullptr, "Node");
+
+	// Import: Top left, behind Create.
+	editor_dock_manager->add_dock(ImportDock::get_singleton(), TTR("Import"), EditorDockManager::DOCK_SLOT_LEFT_UR, nullptr, "FileAccess");
 
 	// FileSystem: Bottom left.
 	editor_dock_manager->add_dock(FileSystemDock::get_singleton(), TTRC("FileSystem"), EditorDockManager::DOCK_SLOT_LEFT_BR, ED_SHORTCUT_AND_COMMAND("docks/open_filesystem", TTRC("Open FileSystem Dock"), KeyModifierMask::ALT | Key::F), "Folder");
