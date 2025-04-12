@@ -135,6 +135,7 @@
 #include "editor/inspector_dock.h"
 #include "editor/multi_node_edit.h"
 #include "editor/node_dock.h"
+#include "editor/nodes_dock.h"
 #include "editor/plugins/animation_player_editor_plugin.h"
 #include "editor/plugins/asset_library_editor_plugin.h"
 #include "editor/plugins/canvas_item_editor_plugin.h"
@@ -7901,6 +7902,7 @@ EditorNode::EditorNode() {
 	memnew(InspectorDock(editor_data));
 	memnew(ImportDock);
 	memnew(NodeDock);
+	memnew(NodesDock);
 
 	FileSystemDock *filesystem_dock = FileSystemDock::get_singleton();
 	filesystem_dock->connect("inherit", callable_mp(this, &EditorNode::_inherit_request));
@@ -7937,7 +7939,7 @@ EditorNode::EditorNode() {
 	const String docks_section = "docks";
 	default_layout.instantiate();
 	// Dock numbers are based on DockSlot enum value + 1.
-	default_layout->set_value(docks_section, "dock_3", "Scene,Import");
+	default_layout->set_value(docks_section, "dock_3", "Scene,Nodes,Import");
 	default_layout->set_value(docks_section, "dock_4", "FileSystem");
 	default_layout->set_value(docks_section, "dock_5", "Inspector,Node,History");
 
